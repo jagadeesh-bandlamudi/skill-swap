@@ -1,0 +1,81 @@
+/* ============================================================
+   SkillSwap — Admin dashboard (admin.html)
+   Uses theme.css tokens. Premium admin shell.
+   ============================================================ */
+body { padding-top: var(--nav-h); }
+
+.admin-topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 1030;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 1rem; padding: 0 clamp(.9rem, 3vw, 1.6rem);
+}
+.admin-topbar .brand { display: flex; align-items: center; gap: .6rem; font-family: var(--font-head); font-weight: 800; font-size: 1.2rem; color: var(--text-strong); }
+.admin-topbar .brand .brand-logo { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: var(--brand-peach); background: linear-gradient(135deg, var(--primary), var(--accent)); }
+.admin-topbar .brand span { color: var(--accent-text); }
+.admin-tag { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-text); background: var(--accent-soft); padding: .2rem .55rem; border-radius: var(--r-pill); }
+.admin-topbar .spacer { flex: 1; }
+
+.sidebar {
+  position: fixed; top: var(--nav-h); bottom: 0; left: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border); padding: 1.2rem .85rem; z-index: 1020;
+  display: flex; flex-direction: column; gap: .25rem; transition: transform var(--t);
+}
+.sidebar .side-label { text-transform: uppercase; letter-spacing: .14em; font-size: .68rem; font-weight: 700; color: var(--muted); padding: .4rem .9rem .5rem; }
+.sidebar .nav-link {
+  display: flex; align-items: center; gap: .8rem; padding: .7rem .9rem; border-radius: var(--r-sm);
+  color: var(--text-soft); font-weight: 600; font-size: .93rem; cursor: pointer; border: 1px solid transparent; text-decoration: none;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+.sidebar .nav-link i { width: 20px; text-align: center; color: var(--muted); }
+.sidebar .nav-link:hover { background: var(--surface-2); color: var(--text-strong); }
+.sidebar .nav-link:hover i { color: var(--accent-text); }
+.sidebar .nav-link.active { background: var(--accent-soft); color: var(--accent-text); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+.sidebar .nav-link.active i { color: var(--accent-text); }
+.sidebar .spacer { flex: 1; }
+
+.admin-main { margin-left: var(--sidebar-w); padding: clamp(1.1rem, 3vw, 2.2rem); }
+.admin-main .section-header { margin-bottom: 1.5rem; }
+.admin-main .section-header h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: .2rem; }
+.admin-main .section-header p { color: var(--muted); margin: 0; }
+
+/* Stat cards */
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 1.5rem; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 1.5rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1.1rem;
+}
+.stat-card .stat-ico { width: 56px; height: 56px; border-radius: 15px; display: grid; place-items: center; font-size: 1.4rem; flex: 0 0 auto; }
+.stat-card.c1 .stat-ico { background: var(--accent-soft); color: var(--accent-text); }
+.stat-card.c2 .stat-ico { background: var(--info-soft); color: var(--info-text); }
+.stat-card.c3 .stat-ico { background: var(--warning-soft); color: var(--warning-text); }
+.stat-card h1 { font-size: 2.2rem; margin: 0; font-family: var(--font-head); }
+.stat-card p { margin: 0; color: var(--muted); font-size: .9rem; }
+
+/* Table card */
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--shadow-sm); overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+.admin-table thead th {
+  text-align: left; font-size: .74rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); font-weight: 700; padding: .9rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.admin-table tbody td { padding: .8rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: .9rem; vertical-align: middle; }
+.admin-table tbody tr:last-child td { border-bottom: none; }
+.admin-table tbody tr:hover { background: var(--surface-2); }
+.admin-table .fb-message { max-width: 280px; color: var(--text-soft); }
+.admin-table .form-select-sm { min-width: 120px; }
+
+/* Modal (bootstrap) uses theme.css .modal-content styling */
+#feedbackEmailModal textarea { min-height: 130px; }
+
+/* Responsive */
+@media (max-width: 992px) {
+  .sidebar { transform: translateX(-105%); box-shadow: var(--shadow-lg); }
+  .sidebar.open { transform: translateX(0); }
+  .admin-main { margin-left: 0; }
+  .admin-hamburger { display: grid !important; }
+  .stat-grid { grid-template-columns: 1fr; }
+}
+.admin-hamburger { display: none; width: 44px; height: 44px; border-radius: var(--r-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text-soft); place-items: center; cursor: pointer; }
+.sidebar-overlay { position: fixed; inset: var(--nav-h) 0 0 0; background: rgba(24,20,17,.45); z-index: 1015; opacity: 0; pointer-events: none; transition: opacity var(--t); }
+.sidebar-overlay.show { opacity: 1; pointer-events: auto; }
