@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap — Teach, Learn, Grow Together</title>
+
+    <!-- Prevent theme flash -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('ss-theme') ||
+            (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tagify CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+    <!-- Design system + app styles (after Bootstrap so overrides win) -->
+    <link rel="stylesheet" href="./css/updated-theme.css">
+    <link rel="stylesheet" href="./css/homepage.css">
+    <!-- New visual theme (orange / sky-blue / cream) — loaded last so it overrides theme.css / homepage.css -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="./css/updated-theme.css">
+</head>
+<body>
+
+    <!-- ================= TOP BAR ================= -->
+    <header class="app-topbar">
+        <button class="hamburger" id="sidebarToggle" aria-label="Menu"><i class="fas fa-bars"></i></button>
+
+        <a class="app-brand" href="#" onclick="showSection('home'); return false;">
+            <span class="logo-icon"><i class="fas fa-arrows-rotate"></i></span>
+            <span class="brand-text">Skill<span>Swap</span></span>
+        </a>
+
+        <div class="topbar-search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-box" placeholder="Search people or skills…" autocomplete="off" style="width: 100%; max-width: 100%; overflow-x: auto; white-space: nowrap; border: none; outline: none; background: transparent;" onkeyup="filterCards()"> 
+        </div>
+
+        <div class="topbar-actions">
+            <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+            <div class="dropdown">
+                <button class="profile-btn" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="showSection('profile'); return false;"><i class="fas fa-user me-2"></i>My Profile</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="showSection('dashboard'); return false;"><i class="fas fa-gauge-high me-2"></i>Dashboard</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="showSection('helpAndFeedback'); return false;"><i class="fas fa-circle-question me-2"></i>Help &amp; Feedback</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="logout(); return false;"><i class="fas fa-right-from-bracket me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="app-sidebar" id="appSidebar">
+        <div class="sidebar-section-label">Menu</div>
+        <a class="side-link" data-section="home" onclick="showSection('home'); return false;"><i class="fas fa-house"></i>Home</a>
+        <a class="side-link" data-section="skillCategory" onclick="showSection('skillCategory'); return false;"><i class="fas fa-layer-group"></i>Explore Skills</a>
+        <a class="side-link" data-section="dashboard" onclick="showSection('dashboard'); return false;"><i class="fas fa-gauge-high"></i>Dashboard</a>
+        <a class="side-link" data-section="connections" onclick="showSection('connections'); return false;"><i class="fas fa-user-group"></i>Connections</a>
+        <a class="side-link" data-section="requests" onclick="showSection('requests'); return false;"><i class="fas fa-inbox"></i>Requests</a>
+        <a class="side-link" data-section="messages" onclick="showSection('messages'); return false;"><i class="fas fa-comment-dots"></i>Messages</a>
+        <div class="sidebar-section-label">Account</div>
+        <a class="side-link" data-section="profile" onclick="showSection('profile'); return false;"><i class="fas fa-id-card"></i>Profile</a>
+        <a class="side-link" data-section="helpAndFeedback" onclick="showSection('helpAndFeedback'); return false;"><i class="fas fa-circle-question"></i>Help &amp; Feedback</a>
+        <div class="sidebar-spacer"></div>
+        <a class="side-link" onclick="logout(); return false;"><i class="fas fa-right-from-bracket"></i>Logout</a>
+        <div class="sidebar-foot">SkillSwap · Learn by teaching</div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <main class="app-main">
+
+        <!-- Back Button -->
+        <div class="back-button-container" id="backButtonContainer" style="display: none;">
+            <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left me-2"></i>Back</button>
+        </div>
+
+        <div class="content-container">
+
+            <!-- ===== HOME ===== -->
+            <div id="homeSection" class="content-section active">
+                <div class="banner-section mb-4">
+                    <div class="row align-items-center g-4">
+                        <div class="col-md-7">
+                            <h4>Welcome back</h4>
+                            <h1 class="fw-bold mb-3">Discover new skills.<br>Teach what you know.</h1>
+                            <p class="text-muted mb-4" style="max-width:520px;">Trade knowledge with a global community — no money, just value. Find a partner, connect, and grow together.</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-primary" onclick="showSection('skillCategory')"><i class="fas fa-compass"></i> Explore Skills</button>
+                                <button class="btn btn-outline-primary" onclick="showSection('profile')"><i class="fas fa-plus"></i> Add Your Skills</button>
+                            </div>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <img class="banner-illus" src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=760&q=70" alt="People learning together" loading="lazy" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="summary-card" onclick="showSection('messages')">
+                            <div class="summary-icon"><i class="fas fa-comment-dots"></i></div>
+                            <div class="summary-content"><h5>Messages</h5><small class="text-muted">Chat with partners</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card" onclick="showSection('requests')">
+                            <div class="summary-icon"><i class="fas fa-paper-plane"></i></div>
+                            <div class="summary-content"><h5>Requests</h5><small class="text-muted">Manage swap requests</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card" onclick="showSection('dashboard')">
+                            <div class="summary-icon"><i class="fas fa-gauge-high"></i></div>
+                            <div class="summary-content"><h5>Dashboard</h5><small class="text-muted">Your activity</small></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <div class="section-head-kicker">For you</div>
+                        <h4 class="mb-0">Recommended Skill Partners</h4>
+                    </div>
+                    <button onclick="loadRecommendedPartners()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-rotate"></i> Refresh</button>
+                </div>
+                <p class="text-muted small">Based on the skills you want to learn.</p>
+                <div id="recommendedPartnersList" class="row g-3 mb-4">
+                    <p id="recommendedLoadingMsg" class="text-muted">Loading recommendations…</p>
+                </div>
+
+                <div class="section-header mt-4"><h3><i class="fas fa-layer-group me-2"></i>Explore Skill Categories</h3></div>
+                <div class="row g-3">
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Programming'><div class="category-icon"><i class="fas fa-laptop-code"></i></div><h6>Programming</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Design'><div class="category-icon"><i class="fas fa-palette"></i></div><h6>Design</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Music & Arts'><div class="category-icon"><i class="fas fa-music"></i></div><h6>Music &amp; Arts</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Business'><div class="category-icon"><i class="fas fa-briefcase"></i></div><h6>Business</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Languages'><div class="category-icon"><i class="fas fa-globe"></i></div><h6>Languages</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Culinary'><div class="category-icon"><i class="fas fa-utensils"></i></div><h6>Culinary</h6></div></div>
+                </div>
+            </div>
+
+            <!-- ===== SKILL CATEGORY ===== -->
+            <div id="skillCategorySection" class="content-section" style="display:none;">
+                <div class="section-header"><h2><i class="fas fa-layer-group me-2"></i>Skill Categories</h2><p>Explore categories and find your perfect match.</p></div>
+                <div class="row g-3">
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Programming'><div class="category-icon"><i class="fas fa-laptop-code"></i></div><h6>Programming</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Design'><div class="category-icon"><i class="fas fa-palette"></i></div><h6>Design</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Music & Arts'><div class="category-icon"><i class="fas fa-music"></i></div><h6>Music &amp; Arts</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Business'><div class="category-icon"><i class="fas fa-briefcase"></i></div><h6>Business</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Languages'><div class="category-icon"><i class="fas fa-globe"></i></div><h6>Languages</h6></div></div>
+                    <div class="col-lg-2 col-md-4 col-6"><div class="category-card" data-category='Culinary'><div class="category-icon"><i class="fas fa-utensils"></i></div><h6>Culinary</h6></div></div>
+                </div>
+                <div id="categoryResults" class="mt-4" style="display:none;"></div>
+            </div>
+
+            <!-- ===== SEARCH RESULTS (moved out of navbar) ===== -->
+            <div id="searchResultsSection" class="content-section" style="display:none;">
+                <div class="search-results-header">
+                    <div class="section-header m-0"><h2><i class="fas fa-magnifying-glass me-2"></i>Search Results</h2></div>
+                    <button id="backToHomeBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Back</button>
+                </div>
+                <div id="searchResultsContainer" class="search-results-grid"></div>
+            </div>
+
+            <!-- ===== DASHBOARD ===== -->
+            <div id="dashboardSection" class="content-section" style="display:none;">
+                <section class="user-overview card">
+                    <img src="./images/user.png" alt="Profile Picture" class="avatar">
+                    <h2 id="userName">—</h2>
+                    <p>@<span id="userUsername">—</span></p>
+                    <div class="skills">
+                        <p><strong>Skills to Learn:</strong> <span id="skillsToLearn">—</span></p>
+                        <p><strong>Skills to Teach:</strong> <span id="skillsToTeach">—</span></p>
+                    </div>
+                </section>
+
+                <section class="skill-summary card">
+                    <h3><i class="fas fa-chart-simple me-2"></i>Skill Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item"><h4 id="totalConnections">0</h4><p>Total Connections</p></div>
+                        <div class="summary-item"><h4 id="completedSwaps">0</h4><p>Swaps Completed</p></div>
+                        <div class="summary-item"><h4 id="ongoingSwaps">0</h4><p>Ongoing Swaps</p></div>
+                    </div>
+                </section>
+
+                <section class="recent-chats card">
+                    <h3><i class="fas fa-clock-rotate-left me-2"></i>Recent Chats</h3>
+                    <ul id="recentChatsList"></ul>
+                </section>
+
+                <section class="recommended-partners card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="mb-0">Recommended Partners</h4>
+                        <button onclick="loadDashboardRecommendedPartners()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-rotate"></i></button>
+                    </div>
+                    <p class="text-muted small">Based on the skills you want to learn.</p>
+                    <div id="dashboard-recommendedPartnersList" class="row g-3">
+                        <p id="dashboard-recommendedLoadingMsg" class="text-muted">Loading recommendations…</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ===== CONNECTIONS ===== -->
+            <div id="connectionsSection" class="content-section" style="display:none;">
+                <div class="section-header"><h2><i class="fas fa-user-group me-2"></i>My Connections</h2><p>Everyone you're connected with.</p></div>
+                <div id="connectionsList" class="row g-3"></div>
+            </div>
+
+            <!-- ===== REQUESTS ===== -->
+            <div id="requestsSection" class="content-section" style="display:none;">
+                <div class="section-header"><h2><i class="fas fa-inbox me-2"></i>Skill Swap Requests</h2><p>Requests you've received and sent.</p></div>
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="requests-panel">
+                            <h4><i class="fas fa-inbox"></i>Received</h4>
+                            <div id="receivedRequests" class="requests-list"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="requests-panel">
+                            <h4><i class="fas fa-paper-plane"></i>Sent</h4>
+                            <div id="sentRequests" class="requests-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MESSAGES ===== -->
+            <div id="messagesSection" class="content-section" style="display:none;">
+                <div class="container-fluid">
+                    <div class="row g-0">
+                        <!-- Sidebar -->
+                        <div class="col-md-4" id="chatSidebar">
+                            <h4>Messages</h4>
+                            <div class="chat-search">
+                                <div class="topbar-search" style="max-width:none;">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="chatSearchInput" class="search-box" placeholder="Search conversations…" autocomplete="off">
+                                </div>
+                            </div>
+                            <div id="chatList" class="list-group"></div>
+                        </div>
+
+                        <!-- Chat window -->
+                        <div class="col-md-8" id="chatWindow">
+                            <div id="chatHeader">
+                                <h5 class="text-muted">Select a conversation</h5>
+                            </div>
+                            <div id="chatMessages">
+                                <div class="chat-empty">
+                                    <div class="chat-empty-ico"><i class="fas fa-comments"></i></div>
+                                    <h5>Your messages</h5>
+                                    <p class="text-muted">Pick a conversation from the left to start chatting.</p>
+                                </div>
+                            </div>
+                            <div class="file-chip" id="fileChip">
+                                <i class="fas fa-paperclip"></i><span id="fileChipName">file</span>
+                                <button type="button" class="file-remove" id="fileChipRemove" aria-label="Remove file">&times;</button>
+                            </div>
+                            <div class="chat-composer">
+                                <input type="file" id="fileInput" hidden>
+                                <button type="button" class="attach-btn" id="attachBtn" title="Attach file"><i class="fas fa-paperclip"></i></button>
+                                <div class="msg-field">
+                                    <textarea id="messageInput" rows="1" placeholder="Type a message…"></textarea>
+                                </div>
+                                <button class="send-btn" id="sendMessageBtn" title="Send"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Call Modal -->
+                <div id="videoCallModal" style="display:none;">
+                    <div class="modal-content">
+                        <div class="call-bar">
+                            <h5 id="callTitle"><span class="live-dot"></span> Live Session</h5>
+                            <div class="call-controls">
+                                <button class="call-ctrl ctrl-mic" id="toggleMicBtn" title="Mute microphone"><i class="fas fa-microphone"></i></button>
+                                <button class="call-ctrl ctrl-share" id="toggleScreenShareBtn" title="Share screen"><i class="fas fa-desktop"></i></button>
+                                <button class="call-ctrl" id="toggleFullscreenBtn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                                <button class="call-ctrl ctrl-end" id="endCallBtn" title="End call"><i class="fas fa-phone-slash"></i></button>
+                            </div>
+                        </div>
+                        <div class="video-container">
+                            <video id="mainVideo" autoplay playsinline></video>
+                            <video id="smallVideo" autoplay playsinline muted></video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PROFILE ===== -->
+            <div id="profileSection" class="content-section" style="display:none;">
+                <div class="profile-header">
+                    <div><h2 class="m-0"><i class="fas fa-id-card me-2"></i>Profile</h2></div>
+                    <button class="btn btn-primary" id="editProfileBtn" onclick="toggleEditMode()"><i class="fas fa-pen me-2"></i>Edit Profile</button>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="profile-card text-center">
+                            <div class="profile-picture-container">
+                                <img id="profileAvatar" src="./images/user.png" alt="User avatar">
+                                <button type="button" class="avatar-edit-btn" id="avatarEditBtn" title="Change photo"><i class="fas fa-camera"></i></button>
+                                <input type="file" id="avatarUploadInput" accept="image/*" hidden>
+                            </div>
+                            <h3 id="displayName">—</h3>
+                            <p class="username text-muted">@—</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <div class="card p-3">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#basicInfo">Basic Info</a></li>
+                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#skillsTab">Skills</a></li>
+                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#availabilityTab">Availability</a></li>
+                            </ul>
+
+                            <div class="tab-content p-3">
+                                <!-- Basic Info -->
+                                <div id="basicInfo" class="tab-pane fade show active">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control profile-input" id="fullName" name="name" readonly></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">Username</label><input type="text" name="username" class="form-control profile-input" id="username" readonly></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control profile-input" id="email" readonly></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">Phone Number</label><input type="text" class="form-control profile-input" id="phone" name="phone" readonly></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">Location</label><input type="text" class="form-control profile-input" id="location" name="location" readonly></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">Bio</label><textarea class="form-control profile-input" id="bio" rows="3" name="bio" readonly></textarea></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">LinkedIn</label><input type="text" class="form-control profile-input" name="linkedin" placeholder="https://linkedin.com/in/username" readonly></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">GitHub / Portfolio</label><input type="text" class="form-control profile-input" name="portfolio" placeholder="https://github.com/username" readonly></div>
+                                    </div>
+                                </div>
+
+                                <!-- Skills -->
+                                <div id="skillsTab" class="tab-pane fade">
+                                    <h5>Skills I Can Teach</h5>
+                                    <div class="skill-edit-fields" style="display:none;">
+                                        <div class="skill-row">
+                                            <div class="tagify-container"><input id="skillsOfferedInput" placeholder="Type or pick a skill (e.g. Python)" /></div>
+                                            <select id="skillLevelOffered" class="form-select skill-level-select">
+                                                <option value="">Select level</option><option>Beginner</option><option>Intermediate</option><option>Expert</option>
+                                            </select>
+                                            <button type="button" id="addOfferedBtn" class="btn btn-outline-primary btn-icon" title="Add"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                        <label class="mt-2 form-label">Select Categories:</label>
+                                        <div id="offeredCategories" class="checkbox-group">
+                                            <label><input type="checkbox" name="offered_category" value="Programming"> Programming</label>
+                                            <label><input type="checkbox" name="offered_category" value="Design"> Design</label>
+                                            <label><input type="checkbox" name="offered_category" value="Music & Arts"> Music &amp; Arts</label>
+                                            <label><input type="checkbox" name="offered_category" value="Photography"> Photography</label>
+                                            <label><input type="checkbox" name="offered_category" value="Business"> Business</label>
+                                            <label><input type="checkbox" name="offered_category" value="Culinary"> Culinary</label>
+                                            <label><input type="checkbox" name="offered_category" value="Languages"> Languages</label>
+                                        </div>
+                                    </div>
+                                    <ul id="skillsOfferedList" class="skills-list mt-2"></ul>
+                                    <hr />
+                                    <h5>Skills I Want to Learn</h5>
+                                    <div class="skill-edit-fields" style="display:none;">
+                                        <div class="skill-row">
+                                            <div class="tagify-container"><input id="skillsWantedInput" placeholder="Type or pick a skill you want to learn" /></div>
+                                            <select id="skillLevelWanted" class="form-select skill-level-select">
+                                                <option value="">Select level</option><option>Beginner</option><option>Intermediate</option><option>Expert</option>
+                                            </select>
+                                            <button type="button" id="addWantedBtn" class="btn btn-outline-primary btn-icon" title="Add"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                        <label class="mt-2 form-label">Select Categories:</label>
+                                        <div id="wantedCategories" class="checkbox-group">
+                                            <label><input type="checkbox" name="wanted_category" value="Programming"> Programming</label>
+                                            <label><input type="checkbox" name="wanted_category" value="Design"> Design</label>
+                                            <label><input type="checkbox" name="wanted_category" value="Music & Arts"> Music &amp; Arts</label>
+                                            <label><input type="checkbox" name="wanted_category" value="Photography"> Photography</label>
+                                            <label><input type="checkbox" name="wanted_category" value="Business"> Business</label>
+                                            <label><input type="checkbox" name="wanted_category" value="Culinary"> Culinary</label>
+                                            <label><input type="checkbox" name="wanted_category" value="Languages"> Languages</label>
+                                        </div>
+                                    </div>
+                                    <ul id="skillsWantedList" class="skills-list mt-2"></ul>
+                                </div>
+
+                                <!-- Availability -->
+                                <div id="availabilityTab" class="tab-pane fade">
+                                    <h5>Available Days</h5>
+                                    <div class="mb-3 checkbox-group">
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Mon" disabled> Mon</label>
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Tue" disabled> Tue</label>
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Wed" disabled> Wed</label>
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Thu" disabled> Thu</label>
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Fri" disabled> Fri</label>
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Sat" disabled> Sat</label>
+                                        <label class="form-check form-check-inline"><input class="form-check-input availability-input" type="checkbox" name="availabilityDays" value="Sun" disabled> Sun</label>
+                                    </div>
+                                    <h6 class="mt-3">Time Slots</h6>
+                                    <div class="row g-2 align-items-center mb-3">
+                                        <div class="col-auto"><input type="time" id="availabilityStart" class="form-control availability-input" disabled></div>
+                                        <div class="col-auto text-muted">to</div>
+                                        <div class="col-auto"><input type="time" id="availabilityEnd" class="form-control availability-input" disabled></div>
+                                    </div>
+                                    <label class="form-label">Timezone</label>
+                                    <select id="availabilityTimezone" class="form-select availability-input" disabled>
+                                        <option value="">Select Timezone</option>
+                                        <option value="America/New_York">EST (New York)</option>
+                                        <option value="America/Chicago">CST (Chicago)</option>
+                                        <option value="America/Denver">MST (Denver)</option>
+                                        <option value="America/Los_Angeles">PST (Los Angeles)</option>
+                                        <option value="Europe/London">GMT (London)</option>
+                                        <option value="Europe/Paris">CET (Paris)</option>
+                                        <option value="Asia/Kolkata">IST (India)</option>
+                                        <option value="Asia/Tokyo">JST (Tokyo)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="edit-buttons mt-3" id="editButtons" style="display:none;">
+                                <button class="btn btn-success me-2" onclick="saveProfile()"><i class="fas fa-check me-2"></i>Save Changes</button>
+                                <button class="btn btn-secondary" onclick="cancelEdit()"><i class="fas fa-xmark me-2"></i>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== HELP & FEEDBACK ===== -->
+            <div id="helpAndFeedbackSection" class="content-section" style="display:none;">
+                <div class="section-header"><h2><i class="fas fa-circle-question me-2"></i>Help &amp; Feedback</h2><p>Answers to common questions — and a direct line to us.</p></div>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card"><div class="card-body">
+                            <h4 class="card-title mb-3">Frequently Asked Questions</h4>
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1">How do I find a skill partner?</button></h2>
+                                    <div id="faqCollapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Browse the skill categories on Home, use the search bar at the top, or check the “Recommended Partners” section on your Dashboard.</div></div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2">How do I send a connection request?</button></h2>
+                                    <div id="faqCollapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">On any user's profile card, click “Request”. They'll be notified and can accept or reject it from their Requests page.</div></div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3">How does the video call work?</button></h2>
+                                    <div id="faqCollapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Once connected, open Messages, select the chat, and click the <strong><i class="fas fa-video"></i> video</strong> button in the chat header to start a call.</div></div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4">How do I edit my profile?</button></h2>
+                                    <div id="faqCollapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Open Profile from the sidebar, then click “Edit Profile” to update your info, skills, photo, and availability.</div></div>
+                                </div>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card"><div class="card-body">
+                            <h4 class="card-title mb-3">Submit Feedback</h4>
+                            <p class="text-muted">Found a bug or have an idea? We'd love to hear from you.</p>
+                            <form id="feedbackForm">
+                                <div class="mb-3">
+                                    <label for="feedbackSubject" class="form-label">Subject</label>
+                                    <select class="form-select" id="feedbackSubject" required>
+                                        <option value="" disabled selected>Choose a topic…</option>
+                                        <option value="Bug Report">Bug Report</option>
+                                        <option value="Feature Request">Feature Request</option>
+                                        <option value="General Feedback">General Feedback</option>
+                                        <option value="Help Request">Help Request</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="feedbackMessage" class="form-label">Message</label>
+                                    <textarea class="form-control" id="feedbackMessage" rows="5" placeholder="Describe your issue or idea…" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane me-2"></i>Submit Feedback</button>
+                            </form>
+                        </div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== VIEW PROFILE ===== -->
+            <div id="viewProfileSection" class="content-section" style="display:none;">
+                <div class="section-header"><h2 id="viewProfileTitle">User Profile</h2></div>
+                <div id="viewProfileBody" class="card">
+                    <div class="card-body"><p class="text-center text-muted">Loading…</p></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============ SCRIPTS ============ -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.9.8/dist/tagify.min.js"></script>
+    <script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+
+    <script src="./config.js"></script>
+    <script src="./js/ui.js"></script>
+    <script src="./js/homepage_merged_2.js"></script>
+    function filterCards() {
+     const query = document.getElementById('searchInput').value.toLowerCase();
+    // Look for EVERY card/box containing text
+     const cards = document.querySelectorAll('.card, .profile-card, .user-card, .search-card, .people-card, [class*="card"]');
+     cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+      
+</body>
+</html>
