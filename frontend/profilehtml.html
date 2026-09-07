@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillSwap Profile Setup</title>
+  <link rel="icon" href="./images/user.png">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ss-theme') ||
+          (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Tagify CSS -->
+  <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
+  <!-- Design system -->
+  <link rel="stylesheet" href="./css/theme.css">
+  <style>
+    body {
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+    }
+    .setup-shell { width: min(760px, 100%); }
+    .setup-brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+    .setup-brand .brand { display: flex; align-items: center; gap: .6rem; font-family: var(--font-head); font-weight: 800; font-size: 1.3rem; color: var(--text-strong); }
+    .setup-brand .brand .brand-logo { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--brand-peach); background: linear-gradient(135deg, var(--primary), var(--accent)); }
+    .setup-brand .brand span { color: var(--accent-text); }
+
+    .container {
+      width: 100%; background: var(--surface); padding: clamp(1.5rem, 4vw, 2.5rem);
+      border-radius: var(--r-lg); box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .container::before { content:''; position:absolute; top:0; left:0; width:6px; height:100%; background:linear-gradient(to bottom, var(--accent), var(--primary)); }
+
+    .setup-intro { margin-bottom: 1.2rem; }
+    .setup-intro .kicker { text-transform: uppercase; letter-spacing: .14em; font-size: .72rem; font-weight: 700; color: var(--accent-text); }
+    .setup-intro h1 { font-size: 1.5rem; margin: .2rem 0 0; }
+
+    h2 { margin-bottom: 1.2rem; color: var(--text-strong); font-size: 1.35rem; display:flex; align-items:center; gap:.7rem; }
+    h2 i { color: var(--accent-text); }
+    .form-step { display:none; animation:fadeIn .4s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+    .form-step.active { display:block; }
+    label { display:block; margin-bottom:.5rem; font-weight:600; font-size:.9rem; color:var(--text-soft); }
+    .input-container { position:relative; width:100%; margin:0 auto 1.1rem; }
+    /* Scoped to .container so these beat theme.css's input[type=...] rules */
+    .container input, .container select, .container textarea {
+      width:100%; padding:.8rem .9rem .8rem 2.9rem !important; font-size:1rem;
+      border:1.5px solid var(--border-strong); border-radius:var(--r-sm); background:var(--surface); transition:all .2s; color:var(--text);
+      font-family: var(--font-body);
+    }
+    .tagify { padding-left:2.6rem !important; }
+    .tagify__input { padding-left:0 !important; }
+    .container textarea { min-height:100px; padding-top:.75rem !important; }
+    /* checkboxes: no icon padding, keep them small */
+    .days-grid input, .checkbox-group input { width:18px !important; height:18px !important; padding:0 !important; }
+    input::placeholder, textarea::placeholder { color: var(--muted); }
+    input:focus, textarea:focus, select:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 4px var(--ring); }
+    .error { color:var(--danger-text); font-size:.85rem; margin:-.7rem 0 1rem .2rem; display:none; }
+    input.invalid, select.invalid, textarea.invalid { border-color:var(--danger); }
+    .button-group { display:flex; justify-content:space-between; margin-top:1.6rem; gap:.6rem; }
+    button {
+      padding:.7rem 1.4rem; font-size:1rem; border:none; background:var(--primary); color:var(--primary-contrast);
+      border-radius:var(--r-pill); cursor:pointer; transition:all .18s; display:inline-flex; align-items:center; gap:.5rem; font-weight:600; font-family: var(--font-body);
+    }
+    button:hover { background:var(--primary-hover); transform:translateY(-1px); box-shadow:var(--shadow-md); }
+    .button-group button[onclick^="prevStep"] { background: var(--surface-3); color: var(--text); }
+    .button-group button[onclick^="prevStep"]:hover { background: var(--border-strong); }
+    .input-icon { position:absolute; left:1rem; top:1.3rem; transform:translateY(-50%); color:var(--muted); font-size:1rem; pointer-events:none; z-index:1; }
+    .tagify-container .input-icon { left:.9rem; }
+    .days-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; margin:0 0 1.1rem; }
+    .days-grid label { display:flex; align-items:center; font-weight:500; margin:0; cursor:pointer; font-size:.92rem; background: var(--surface-2); border: 1px solid var(--border); padding: .55rem .7rem; border-radius: var(--r-sm); }
+    .days-grid input { width:18px; height:18px; margin:0 .55rem 0 0; }
+    .time-inputs { display:flex; align-items:center; gap:1rem; margin:0 0 1.1rem; }
+    .time-inputs .input-container { margin:0; flex:1; }
+    .time-inputs span { color:var(--muted); }
+    .progress-bar { height:8px; background:var(--surface-3); border-radius:var(--r-pill); margin-bottom:1.6rem; overflow:hidden; }
+    .progress { height:100%; background:linear-gradient(to right, var(--accent), var(--primary)); width:20%; transition:width .3s; border-radius: var(--r-pill); }
+    /* skill list + add button */
+    .skills-row { display:flex; gap:.6rem; align-items:center; }
+    .skills-row .input-container { flex:1; margin:0; }
+    .skills-list { list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:.5rem; margin:.6rem 0 0; }
+    .skills-list li { background:var(--accent-soft); color: var(--accent-text); padding:.45rem .7rem; border-radius:var(--r-pill); display:flex; gap:.5rem; align-items:center; font-size:.88rem; font-weight:500; }
+    .skills-list li small { color: var(--text-soft); }
+    .skills-list button.remove { background:none; border:none; cursor:pointer; color:var(--danger-text); font-size:1rem; padding:0; display:inline-flex; }
+    .btn-add { padding:.65rem .85rem; border-radius:var(--r-sm); border:none; background:var(--accent); color:var(--on-accent); cursor:pointer; }
+    .btn-add:hover { background: var(--accent-hover); }
+    .checkbox-group { display:flex; flex-wrap:wrap; gap:.5rem .9rem; margin-bottom:.6rem; }
+    .checkbox-group label { display:inline-flex; align-items:center; gap:.35rem; margin:0; font-weight:500; font-size:.9rem; color: var(--text-soft); }
+    .checkbox-group input { width:auto; padding:0; }
+    select[name="timezone"] { padding-left:2.9rem !important; }
+    @media (max-width:768px) {
+      .days-grid { grid-template-columns:repeat(3,1fr); }
+    }
+    @media (max-width:480px) {
+      body { padding: 20px 12px; }
+      .days-grid { grid-template-columns:repeat(2,1fr); }
+      .time-inputs { flex-direction:column; align-items:stretch; gap:.5rem; }
+      .skills-row { flex-direction:column; align-items:stretch; }
+      .skills-row > div { width:100% !important; }
+      .button-group button { flex:1; justify-content:center; }
+    }
+  </style>
+</head>
+<body>
+<div class="setup-shell">
+  <div class="setup-brand">
+    <a class="brand" href="#" onclick="return false;"><span class="brand-logo"><i class="fas fa-arrows-rotate"></i></span>Skill<span>Swap</span></a>
+    <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+  </div>
+  <div class="container">
+    <div class="setup-intro">
+      <span class="kicker">Welcome to SkillSwap</span>
+      <h1>Let's set up your profile</h1>
+    </div>
+    <div class="progress-bar"><div class="progress" id="progressBar"></div></div>
+
+  <form id="multiStepForm" novalidate>
+    <!-- Step 1 -->
+    <div class="form-step active">
+      <h2><i class="fas fa-user-edit"></i> Basic Information</h2>
+      <label>Full Name:</label>
+      <div class="input-container"><span class="input-icon"><i class="fas fa-user"></i></span><input type="text" name="name" required></div>
+      <div class="error">Full name is required</div>
+
+      <label>Username:</label>
+      <div class="input-container"><span class="input-icon"><i class="fas fa-at"></i></span><input type="text" name="username" required></div>
+      <div class="error">Username is required</div>
+
+      <label>Email:</label>
+      <div class="input-container"><span class="input-icon"><i class="fas fa-envelope"></i></span><input type="email" name="email" required></div>
+      <div class="error">Valid email is required</div>
+
+      <label>Phone Number:</label>
+      <div class="input-container"><span class="input-icon"><i class="fas fa-phone"></i></span><input type="tel" name="phone" pattern="[0-9]{10}" required></div>
+      <div class="error">Valid 10-digit phone number required</div>
+
+      <label>Location:</label>
+      <div class="input-container"><span class="input-icon"><i class="fas fa-map-marker-alt"></i></span><input type="text" name="location" required></div>
+      <div class="error">Location is required</div>
+
+      <label>Bio:</label>
+      <div class="input-container"><span class="input-icon"><i class="fas fa-pen"></i></span><textarea name="bio" rows="4"></textarea></div>
+
+      <div class="button-group"><span></span><button type="button" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button></div>
+    </div>
+
+    <!-- Step 2: Skills -->
+    <div class="form-step">
+      <h2><i class="fas fa-lightbulb"></i> Skill Information</h2>
+
+      <label>Skills Offered:</label>
+      <div class="skills-row" style="margin-bottom:8px;">
+        <div class="input-container tagify-container" style="flex:1;">
+          <span class="input-icon"><i class="fas fa-hands-helping"></i></span>
+          <input id="skillsOfferedInput" name="skills_offered" class="skills-input" placeholder="Type or pick a skill (e.g., Python)"/>
+        </div>
+        <div style="width:160px;">
+          <select id="skillLevelOffered" class="skills-offered-input-level">
+            <option value="">Select level</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Expert</option>
+          </select>
+        </div>
+        <div>
+          <button type="button" id="addOfferedBtn" class="btn-add"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+      <div class="error" id="skillsOfferedError">Please add at least one offered skill</div>
+
+      <label>Select Skill Categories:</label>
+      <div class="checkbox-group" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px;">
+        <label><input type="checkbox" name="skill_category_offered" value="Programming"> Programming</label>
+        <label><input type="checkbox" name="skill_category_offered" value="Design"> Design</label>
+        <label><input type="checkbox" name="skill_category_offered" value="Music & Arts"> Music & Arts</label>
+        <label><input type="checkbox" name="skill_category_offered" value="Photography"> Photography</label>
+        <label><input type="checkbox" name="skill_category_offered" value="Business"> Business</label>
+        <label><input type="checkbox" name="skill_category_offered" value="Culinary"> Culinary</label>
+        <label><input type="checkbox" name="skill_category_offered" value="Languages"> Languages</label>
+      </div>
+      <div class="error" id="skillCategoriesErrorOffered">Select at least one category</div>
+
+      <ul id="skillsOfferedList" class="skills-list" aria-live="polite"></ul>
+
+      <hr style="margin:16px 0;" />
+
+      <label>Skills Wanted:</label>
+      <div class="skills-row" style="margin-bottom:8px;">
+        <div class="input-container tagify-container" style="flex:1;">
+          <span class="input-icon"><i class="fas fa-search"></i></span>
+          <input id="skillsWantedInput" name="skills_wanted" class="skills-input" placeholder="Type or pick a skill you want to learn" />
+        </div>
+        <div style="width:160px;">
+          <select id="skillLevelWanted" class="skills-wanted-input-level">
+            <option value="">Select level</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Expert</option>
+          </select>
+        </div>
+        <div>
+          <button type="button" id="addWantedBtn" class="btn-add"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+      <div class="error" id="skillsWantedError">Please add at least one wanted skill</div>
+
+      <label>Select Skill Categories:</label>
+      <div class="checkbox-group" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px;">
+        <label><input type="checkbox" name="skill_category_wanted" value="Programming"> Programming</label>
+        <label><input type="checkbox" name="skill_category_wanted" value="Design"> Design</label>
+        <label><input type="checkbox" name="skill_category_wanted" value="Music & Arts"> Music & Arts</label>
+        <label><input type="checkbox" name="skill_category_wanted" value="Photography"> Photography</label>
+        <label><input type="checkbox" name="skill_category_wanted" value="Business"> Business</label>
+        <label><input type="checkbox" name="skill_category_wanted" value="Culinary"> Culinary</label>
+        <label><input type="checkbox" name="skill_category_wanted" value="Languages"> Languages</label>
+      </div>
+      <div class="error" id="skillCategoriesErrorWanted">Select at least one category</div>
+
+      <ul id="skillsWantedList" class="skills-list" aria-live="polite"></ul>
+
+      <div class="button-group">
+        <button type="button" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button type="button" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 3: Availability -->
+    <div class="form-step">
+      <h2><i class="far fa-calendar-alt"></i> Availability</h2>
+      <label>Preferred Days:</label>
+      <div class="days-grid">
+        <label><input type="checkbox" name="days" value="Mon"> Mon</label>
+        <label><input type="checkbox" name="days" value="Tue"> Tue</label>
+        <label><input type="checkbox" name="days" value="Wed"> Wed</label>
+        <label><input type="checkbox" name="days" value="Thu"> Thu</label>
+        <label><input type="checkbox" name="days" value="Fri"> Fri</label>
+        <label><input type="checkbox" name="days" value="Sat"> Sat</label>
+        <label><input type="checkbox" name="days" value="Sun"> Sun</label>
+      </div>
+      <div class="error">Select at least one day</div>
+
+      <label>Time Slots:</label>
+      <div class="time-inputs">
+        <div class="input-container"><span class="input-icon"><i class="far fa-clock"></i></span><input type="time" name="start_time"></div>
+        <span>to</span>
+        <div class="input-container"><span class="input-icon"><i class="far fa-clock"></i></span><input type="time" name="end_time"></div>
+      </div>
+      <div class="error">Enter valid time range</div>
+
+      <label>Time Zone:</label>
+      <div class="input-container tagify-container">
+        <span class="input-icon"><i class="fas fa-globe"></i></span>
+        <select name="timezone">
+          <option value="">Select</option>
+          <option value="America/New_York">EST (New York)</option>
+          <option value="America/Chicago">CST (Chicago)</option>
+          <option value="America/Denver">MST (Denver)</option>
+          <option value="America/Los_Angeles">PST (Los Angeles)</option>
+          <option value="Europe/London">GMT (London)</option>
+          <option value="Europe/Paris">CET (Paris)</option>
+          <option value="Asia/Kolkata">IST (India)</option>
+          <option value="Asia/Tokyo">JST (Tokyo)</option>
+        </select>
+      </div>
+      <div class="error">Select your timezone</div>
+
+      <div class="button-group">
+        <button type="button" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button type="button" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 4: Social & Submit -->
+    <div class="form-step">
+      <h2><i class="fas fa-share-alt"></i> Social Links</h2>
+      <label>LinkedIn:</label>
+      <div class="input-container"><span class="input-icon"><i class="fab fa-linkedin"></i></span><input type="url" name="linkedin" placeholder="https://linkedin.com/in/username"></div>
+      <label>GitHub/Portfolio:</label>
+      <div class="input-container"><span class="input-icon"><i class="fab fa-github"></i></span><input type="url" name="portfolio" placeholder="https://github.com/username"></div>
+
+      <div class="button-group">
+        <button type="button" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button type="submit"><i class="fas fa-check-circle"></i> Submit</button>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+
+<!-- Tagify JS -->
+<script src="https://unpkg.com/@yaireo/tagify"></script>
+<script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+
+<script src="config.js"></script>
+<script src="./js/ui.js"></script>
+<script>
+const steps = document.querySelectorAll(".form-step");
+let currentStep = 0;
+const totalSteps = steps.length;
+
+const initTagify = () => {
+  const skillsInputs = document.querySelectorAll('.skills-input');
+  skillsInputs.forEach(input => {
+    if (input.tagify) input.tagify.destroy();
+    new Tagify(input, {
+      whitelist: ["JavaScript", "Python", "Graphic Design", "UI/UX", "React", "Node.js", "Photoshop", "Writing", "Marketing", "HTML/CSS", "Java", "C++", "DSA", "SQL", "Machine Learning", "Data Science", "3D Modelling", "Motion Graphics", "Game Design", "Interior Design", "Guitar", "Piano", "Singing & Vocal", "Oil Painting", "Sketching & Drawing", "Sculpture Making", "English", "Spanish", "French", "Telugu", "Hindi", "Baking", "Food Presentation", "Italian Cuisine", "Pastry Making", "Grilling & Barbecue"],
+      dropdown: { maxItems: 10, enabled: 1, closeOnSelect: false },
+      originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+    });
+  });
+};
+
+const updateProgress = () => {
+  const progress = ((currentStep + 1) / totalSteps) * 100;
+  document.getElementById('progressBar').style.width = `${progress}%`;
+};
+
+function showStep(index) {
+  steps.forEach((step, i) => {
+    step.classList.toggle("active", i === index);
+  });
+  updateProgress();
+}
+
+function validateStep(step) {
+  let isValid = true;
+  const errors = step.querySelectorAll('.error');
+  errors.forEach(err => err.style.display = "none");
+
+  const inputs = step.querySelectorAll("input, select, textarea");
+  inputs.forEach(input => {
+    const error = input.closest('.input-container')?.nextElementSibling;
+    input.classList.remove("invalid");
+    if (error?.classList.contains('error')) error.style.display = "none";
+
+    // Skip validation for Tagify input elements (we validate via lists)
+    if (input.classList.contains('skills-input')) return;
+
+    if (input.required && !input.value.trim()) {
+      input.classList.add("invalid");
+      if (error?.classList.contains('error')) error.style.display = "block";
+      isValid = false;
+    }
+
+    if (input.name === "phone" && input.value && !/^\d{10}$/.test(input.value.trim())) {
+      input.classList.add("invalid");
+      if (error?.classList.contains('error')) error.style.display = "block";
+      isValid = false;
+    }
+
+    if (input.name === "email" && input.value && !/^[a-zA-Z0-9._%+-]+@(gmail\.com|rguktong\.ac\.in)$/.test(input.value.trim())) {
+      input.classList.add("invalid");
+      if (error?.classList.contains('error')) {
+        error.textContent = "Please enter a valid RGUKT or Gmail address";
+        error.style.display = "block";
+      }
+      isValid = false;
+    }
+  });
+
+  // Days validation
+  if (step.querySelector('.days-grid')) {
+    const checked = step.querySelectorAll('input[name="days"]:checked');
+    if (checked.length === 0) {
+      step.querySelector('.days-grid').nextElementSibling.style.display = "block";
+      isValid = false;
+    }
+  }
+
+  // Time range validation
+  const startInput = step.querySelector('input[name="start_time"]');
+  const endInput = step.querySelector('input[name="end_time"]');
+  if (startInput && endInput) {
+    const start = startInput.value;
+    const end = endInput.value;
+    if (start && end && start >= end) {
+      step.querySelector('.time-inputs').nextElementSibling.style.display = "block";
+      isValid = false;
+    }
+  }
+
+  // Custom validation for skills step: ensure lists have items
+  if (step.querySelector('#skillsOfferedList')) {
+    const c = step.querySelectorAll('#skillsOfferedList li').length;
+    if (c === 0) {
+      document.getElementById('skillsOfferedError').style.display = 'block';
+      isValid = false;
+    }
+  }
+  if (step.querySelector('#skillsWantedList')) {
+    const c2 = step.querySelectorAll('#skillsWantedList li').length;
+    if (c2 === 0) {
+      document.getElementById('skillsWantedError').style.display = 'block';
+      isValid = false;
+    }
+  }
+
+  return isValid;
+}
+
+function nextStep() {
+  if (validateStep(steps[currentStep])) {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  }
+}
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    showStep(currentStep);
+  }
+}
+
+function previewImage(event) {
+  const reader = new FileReader();
+  reader.onload = function () {
+    const preview = document.getElementById("preview");
+    preview.src = reader.result;
+    preview.style.display = "block";
+  };
+  if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+}
+
+function rate(rating) {
+  const stars = document.querySelectorAll('.star-rating span');
+  stars.forEach((star, index) => star.classList.toggle('active', index < rating));
+  document.querySelector('input[name="rating"]').value = rating;
+}
+
+/* ===== skill add / list logic (preserves Tagify) ===== */
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function createSkillListItem({ skillName, skillLevel, categoriesText }) {
+  const li = document.createElement('li');
+  li.innerHTML = `
+    <span style="font-weight:500;">${escapeHtml(skillName)}</span>
+    <span style="font-size:0.85em; color:#6c757d;">(${escapeHtml(skillLevel)})</span>
+    ${categoriesText ? `<small style="font-size:0.8em; color:#495057;"> &nbsp;•&nbsp; ${escapeHtml(categoriesText)}</small>` : ''}
+    <button type="button" class="remove" title="Remove"><i class="fas fa-times-circle"></i></button>
+  `;
+  li.setAttribute('data-skill-name', skillName);
+  li.setAttribute('data-skill-level', skillLevel);
+  li.setAttribute('data-skill-categories', categoriesText || '');
+  // remove handler
+  li.querySelector('button.remove').addEventListener('click', (e) => e.currentTarget.parentNode.remove());
+  return li;
+}
+
+function addSkill(kind) {
+  const lower = kind.toLowerCase();
+  const inputEl = document.getElementById(lower === 'offered' ? 'skillsOfferedInput' : 'skillsWantedInput');
+  const levelEl = document.getElementById(lower === 'offered' ? 'skillLevelOffered' : 'skillLevelWanted');
+  const listEl = document.getElementById(kind === 'Offered' ? 'skillsOfferedList' : 'skillsWantedList');
+
+  // Tagify instance
+  const tagifyInst = inputEl.tagify;
+  const tags = (tagifyInst && Array.isArray(tagifyInst.value)) ? tagifyInst.value : [];
+  let skillName = tags.length ? tags[0].value.trim() : inputEl.value.trim();
+  const skillLevel = levelEl.value.trim();
+
+  // categories: different for offered and wanted
+  const categoryName = lower === 'offered' ? 'skill_category_offered' : 'skill_category_wanted';
+  const categories = Array.from(document.querySelectorAll(`input[name="${categoryName}"]:checked`)).map(cb => cb.value);
+
+  // validation
+  if (!skillName) { toast('Please enter or select a skill name.', 'warning'); return; }
+  if (!skillLevel) { toast('Please select a skill level.', 'warning'); return; }
+  if (categories.length === 0) {
+    document.getElementById(lower === 'offered' ? 'skillCategoriesErrorOffered' : 'skillCategoriesErrorWanted').style.display = 'block';
+    return;
+  } else {
+    document.getElementById(lower === 'offered' ? 'skillCategoriesErrorOffered' : 'skillCategoriesErrorWanted').style.display = 'none';
+  }
+
+  // create list item
+  const li = createSkillListItem({ skillName, skillLevel, categoriesText: categories.join(', ') });
+  li.setAttribute('data-skill-categories', JSON.stringify(categories));
+  listEl.appendChild(li);
+
+  // reset inputs
+  if (tagifyInst && tagifyInst.removeAllTags) tagifyInst.removeAllTags();
+  else inputEl.value = '';
+  levelEl.value = '';
+  document.querySelectorAll(`input[name="${categoryName}"]:checked`).forEach(cb => cb.checked = false);
+
+  // hide errors
+  if (kind === 'Offered') document.getElementById('skillsOfferedError').style.display = 'none';
+  else document.getElementById('skillsWantedError').style.display = 'none';
+}
+
+
+
+/* Populate function (used when fetching profile) */
+function populateSkillsList(targetListId, skillsArray) {
+  const container = document.getElementById(targetListId);
+  if (!container || !Array.isArray(skillsArray)) return;
+  skillsArray.forEach(s => {
+    // handle different shapes from server
+    const skillName = s.skillName || s.name || '';
+    const skillLevel = s.level || s.skillLevel || '';
+    let categoriesText = '';
+    if (s.category) {
+      if (Array.isArray(s.category)) categoriesText = s.category.join(', ');
+      else categoriesText = String(s.category);
+    } else if (s.categories) {
+      categoriesText = Array.isArray(s.categories) ? s.categories.join(', ') : String(s.categories || '');
+    }
+    const li = createSkillListItem({ skillName, skillLevel, categoriesText });
+    container.appendChild(li);
+  });
+}
+
+/*backend integration (fetch & submit) */
+const getToken = () => localStorage.getItem('token');
+
+async function fetchAndPopulateProfile() {
+    const token = getToken();
+
+    if (!token) {
+        return; // silently return if not logged in
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/profile`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                }
+            }
+        );
+
+        // Read response safely
+        const text = await response.text();
+
+        let user = {};
+
+        if (text) {
+            try {
+                user = JSON.parse(text);
+            } catch (jsonError) {
+                console.error(
+                    'Profile response is not valid JSON:',
+                    text
+                );
+            }
+        }
+
+        if (response.ok) {
+
+            // ============================================
+            // POPULATE BASIC PROFILE FIELDS
+            // ============================================
+
+            if (user.profile) {
+
+                const nameInput =
+                    document.querySelector('input[name="name"]');
+
+                const usernameInput =
+                    document.querySelector('input[name="username"]');
+
+                const locationInput =
+                    document.querySelector('input[name="location"]');
+
+                const bioInput =
+                    document.querySelector('textarea[name="bio"]');
+
+
+                if (nameInput) {
+                    nameInput.value =
+                        user.profile.fullName || '';
+                }
+
+                if (usernameInput) {
+                    usernameInput.value =
+                        user.profile.username || '';
+                }
+
+                if (locationInput) {
+                    locationInput.value =
+                        user.profile.location || '';
+                }
+
+                if (bioInput) {
+                    bioInput.value =
+                        user.profile.bio || '';
+                }
+            }
+
+
+            // ============================================
+            // EMAIL
+            // ============================================
+
+            const emailInput =
+                document.querySelector('input[name="email"]');
+
+            if (emailInput && user.email) {
+                emailInput.value = user.email;
+            }
+
+
+            // ============================================
+            // PHONE NUMBER
+            // ============================================
+
+            const phoneInput =
+                document.querySelector('input[name="phone"]');
+
+            if (phoneInput && user.phoneNumber) {
+                phoneInput.value = user.phoneNumber;
+            }
+
+
+            // ============================================
+            // SKILLS OFFERED
+            // ============================================
+
+            if (
+                Array.isArray(user.profile?.skillsOffered) &&
+                user.profile.skillsOffered.length
+            ) {
+
+                populateSkillsList(
+                    'skillsOfferedList',
+                    user.profile.skillsOffered
+                );
+
+            } else if (
+                Array.isArray(user.skillsOffered) &&
+                user.skillsOffered.length
+            ) {
+
+                populateSkillsList(
+                    'skillsOfferedList',
+                    user.skillsOffered
+                );
+            }
+
+
+            // ============================================
+            // SKILLS TO LEARN
+            // ============================================
+
+            if (
+                Array.isArray(user.profile?.skillsToLearn) &&
+                user.profile.skillsToLearn.length
+            ) {
+
+                populateSkillsList(
+                    'skillsWantedList',
+                    user.profile.skillsToLearn
+                );
+
+            } else if (
+                Array.isArray(user.skillsToLearn) &&
+                user.skillsToLearn.length
+            ) {
+
+                populateSkillsList(
+                    'skillsWantedList',
+                    user.skillsToLearn
+                );
+            }
+
+        } else {
+
+            console.error(
+                'Failed to fetch profile:',
+                user
+            );
+        }
+
+    } catch (err) {
+
+        console.error(
+            'Error fetching profile:',
+            err
+        );
+    }
+}
+
+
+// ============================================================
+// SUBMIT PROFILE
+// ============================================================
+
+async function submitProfile(formData) {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        toast('Authentication failed. Please log in again.', 'error');
+        window.location.href = 'newindex.html';
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/profile`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(formData)
+            }
+        );
+
+        const text = await response.text();
+
+        let result = {};
+
+        if (text.trim()) {
+            try {
+                result = JSON.parse(text);
+            } catch (error) {
+                console.error('Backend returned invalid JSON:', text);
+            }
+        }
+
+        if (!response.ok) {
+            console.error(
+                'Profile save failed:',
+                response.status,
+                result
+            );
+
+            toast(result.msg || ('Failed to save profile (' + response.status + ').'), 'error');
+
+            return;
+        }
+
+        console.log('Profile saved successfully:', result);
+
+        /*
+         * Profile is now saved.
+         * Go to ONLY the main homepage.
+         */
+        window.location.replace('homepage.html');
+
+    } catch (error) {
+        console.error('Error submitting profile:', error);
+
+        toast('Cannot connect to the server. Please try again.', 'error');
+    }
+}
+
+/* Final submit handler*/
+document
+    .getElementById("multiStepForm")
+    .addEventListener("submit", async function (e) {
+
+    e.preventDefault();
+
+    if (!validateStep(steps[currentStep])) {
+        return;
+    }
+
+    const skillsOffered =
+        Array.from(
+            document.querySelectorAll('#skillsOfferedList li')
+        ).map(li => ({
+            skillName: li.getAttribute('data-skill-name'),
+            level: li.getAttribute('data-skill-level'),
+            category: JSON.parse(
+                li.getAttribute('data-skill-categories') || '[]'
+            )
+        }));
+
+    const skillsWanted =
+        Array.from(
+            document.querySelectorAll('#skillsWantedList li')
+        ).map(li => ({
+            skillName: li.getAttribute('data-skill-name'),
+            level: li.getAttribute('data-skill-level'),
+            category: JSON.parse(
+                li.getAttribute('data-skill-categories') || '[]'
+            )
+        }));
+
+    const formData = {
+
+        fullName:
+            document.querySelector('input[name="name"]')?.value || '',
+
+        username:
+            document.querySelector('input[name="username"]')?.value || '',
+
+        phoneNumber:
+            document.querySelector('input[name="phone"]')?.value || '',
+
+        location:
+            document.querySelector('input[name="location"]')?.value || '',
+
+        bio:
+            document.querySelector('textarea[name="bio"]')?.value || '',
+
+        skillsOffered: skillsOffered,
+
+        skillsToLearn: skillsWanted,
+
+        availability: {
+            days: Array.from(
+                document.querySelectorAll(
+                    'input[name="days"]:checked'
+                )
+            ).map(cb => cb.value),
+
+            time:
+                `${document.querySelector('input[name="start_time"]')?.value || ''} - ` +
+                `${document.querySelector('input[name="end_time"]')?.value || ''}`,
+
+            timezone:
+                document.querySelector(
+                    'select[name="timezone"]'
+                )?.value?.trim() || ''
+        },
+
+        socialLinks: {
+            linkedin:
+                document.querySelector(
+                    'input[name="linkedin"]'
+                )?.value || '',
+
+            github:
+                document.querySelector(
+                    'input[name="portfolio"]'
+                )?.value || ''
+        }
+    };
+
+    await submitProfile(formData);
+});
+
+/* DOM Ready: init Tagify, progress, fetch profile, attach add buttons */
+document.addEventListener('DOMContentLoaded', () => {
+  initTagify();
+  updateProgress();
+  fetchAndPopulateProfile();
+  showStep(currentStep);
+
+  // Attach add button handlers
+  document.getElementById('addOfferedBtn').addEventListener('click', () => addSkill('Offered'));
+  document.getElementById('addWantedBtn').addEventListener('click', () => addSkill('Wanted'));
+});
+</script>
+</body>
+</html>
