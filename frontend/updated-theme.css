@@ -1,0 +1,814 @@
+/* ==========================================================================
+   updated-theme.css
+   SkillSwap — "Retro Portfolio" visual refresh (orange / sky-blue / cream)
+   Load this AFTER theme.css and homepage.css in <head>. It only restyles
+   colors, type, spacing, radius and shadows — no layout-critical positioning,
+   width, display or z-index rules are touched, so the sidebar toggle, chat
+   panel, modal and tab logic keep working exactly as before.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  /* ---- Core palette, pulled from the Canva board ---- */
+  --ss-cream:        #F7F0E1;   /* page background */
+  --ss-cream-soft:   #FBF6EA;   /* card surface */
+  --ss-cream-deep:   #EFE4CB;   /* recessed / hover surface */
+  --ss-tan-line:     #E7D8B7;   /* hairline borders */
+
+  --ss-ink:          #241C15;   /* headings / primary text */
+  --ss-ink-soft:     #7A6F5E;   /* muted text */
+
+  --ss-orange:       #E2632A;   /* primary brand color */
+  --ss-orange-dark:  #C24E1C;   /* primary hover */
+  --ss-orange-tint:  #FBE2D2;   /* orange-on-cream tint */
+
+  --ss-blue:         #A9DCEC;   /* secondary block color */
+  --ss-blue-deep:    #2E9DC2;   /* secondary accent / links */
+  --ss-blue-tint:    #E3F4F9;
+
+  --ss-gold:         #F2B92E;   /* small highlight / badge */
+  --ss-white:        #FFFFFF;
+
+  --ss-shadow-sm:    0 2px 8px rgba(36, 28, 21, 0.06);
+  --ss-shadow-md:    0 10px 24px rgba(36, 28, 21, 0.10);
+  --ss-shadow-lg:    0 18px 40px rgba(36, 28, 21, 0.14);
+
+  --ss-radius-sm:    10px;
+  --ss-radius-md:    16px;
+  --ss-radius-lg:    22px;
+  --ss-radius-pill:  999px;
+
+  --ss-font-display: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+  --ss-font-body:    'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Dark mode keeps the same hues but flips the surfaces, so the moon/sun
+   toggle still reads as "the same site, night mode" rather than a new page. */
+html[data-theme="dark"]{
+  --ss-cream:        #1B1712;
+  --ss-cream-soft:   #23201A;
+  --ss-cream-deep:   #2D2820;
+  --ss-tan-line:     #3A3327;
+
+  --ss-ink:          #F4ECDD;
+  --ss-ink-soft:     #B9AD98;
+
+  --ss-orange-tint:  #3A2418;
+  --ss-blue-tint:    #17323B;
+  --ss-white:        #262119;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+body{
+  background: var(--ss-cream);
+  color: var(--ss-ink);
+  font-family: var(--ss-font-body);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6{
+  font-family: var(--ss-font-display);
+  color: var(--ss-ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+a{ color: var(--ss-blue-deep); }
+a:hover{ color: var(--ss-orange); }
+
+.text-muted{ color: var(--ss-ink-soft) !important; }
+
+/* thin, warm scrollbar */
+::-webkit-scrollbar{ width: 10px; height: 10px; }
+::-webkit-scrollbar-track{ background: transparent; }
+::-webkit-scrollbar-thumb{ background: var(--ss-tan-line); border-radius: var(--ss-radius-pill); }
+::-webkit-scrollbar-thumb:hover{ background: var(--ss-ink-soft); }
+
+/* ==========================================================================
+   Buttons (Bootstrap overrides — same specificity, later in source = wins)
+   ========================================================================== */
+.btn{
+  font-family: var(--ss-font-display);
+  font-weight: 600;
+  border-radius: var(--ss-radius-pill);
+  padding: 0.55rem 1.3rem;
+  font-size: 0.92rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  border-width: 2px;
+}
+.btn:active{ transform: translateY(1px); }
+
+.btn-primary{
+  background: var(--ss-orange);
+  border-color: var(--ss-orange);
+  color: var(--ss-white);
+  box-shadow: var(--ss-shadow-sm);
+}
+.btn-primary:hover, .btn-primary:focus{
+  background: var(--ss-orange-dark);
+  border-color: var(--ss-orange-dark);
+  box-shadow: var(--ss-shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary{
+  background: transparent;
+  border-color: var(--ss-orange);
+  color: var(--ss-orange-dark);
+}
+.btn-outline-primary:hover{
+  background: var(--ss-orange);
+  border-color: var(--ss-orange);
+  color: var(--ss-white);
+  transform: translateY(-1px);
+}
+
+.btn-outline-secondary{
+  background: var(--ss-cream-soft);
+  border-color: var(--ss-tan-line);
+  color: var(--ss-ink-soft);
+}
+.btn-outline-secondary:hover{
+  background: var(--ss-blue);
+  border-color: var(--ss-blue);
+  color: var(--ss-ink);
+}
+
+.btn-secondary{
+  background: var(--ss-cream-deep);
+  border-color: var(--ss-cream-deep);
+  color: var(--ss-ink);
+}
+.btn-secondary:hover{ background: var(--ss-tan-line); border-color: var(--ss-tan-line); }
+
+.btn-success{
+  background: #4F9E6B;
+  border-color: #4F9E6B;
+  color: var(--ss-white);
+}
+.btn-success:hover{ background: #3E8558; border-color: #3E8558; }
+
+.btn-icon{ border-radius: var(--ss-radius-sm); padding: 0.5rem 0.7rem; }
+
+/* ==========================================================================
+   Top bar
+   ========================================================================== */
+.app-topbar{
+  background: var(--ss-cream-soft);
+  border-bottom: 1px solid var(--ss-tan-line);
+  box-shadow: var(--ss-shadow-sm);
+}
+
+.hamburger{
+  background: var(--ss-cream-deep);
+  color: var(--ss-ink);
+  border: none;
+  border-radius: var(--ss-radius-sm);
+  width: 40px;
+  height: 40px;
+  transition: background-color 0.15s ease;
+}
+.hamburger:hover{ background: var(--ss-blue); }
+
+.app-brand{
+  font-family: var(--ss-font-display);
+  text-decoration: none;
+  color: var(--ss-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.app-brand .logo-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--ss-radius-sm);
+  background: var(--ss-orange);
+  color: var(--ss-white);
+  font-size: 1rem;
+  box-shadow: var(--ss-shadow-sm);
+}
+.app-brand .brand-text{
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--ss-ink);
+}
+.app-brand .brand-text span{ color: var(--ss-orange); }
+
+.topbar-search{
+  background: var(--ss-cream);
+  border: 2px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-pill);
+  padding: 0.5rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.topbar-search:focus-within{
+  border-color: var(--ss-blue-deep);
+  box-shadow: 0 0 0 4px var(--ss-blue-tint);
+}
+.topbar-search .search-icon{ color: var(--ss-ink-soft); }
+.topbar-search .search-box{
+  font-family: var(--ss-font-body);
+  color: var(--ss-ink);
+}
+.topbar-search .search-box::placeholder{ color: var(--ss-ink-soft); }
+
+.topbar-actions{ display: flex; align-items: center; gap: 0.6rem; }
+
+.theme-toggle{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--ss-tan-line);
+  background: var(--ss-cream);
+  color: var(--ss-orange-dark);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.theme-toggle:hover{ background: var(--ss-orange-tint); transform: rotate(-8deg); }
+
+.profile-btn{
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--ss-orange);
+  background: var(--ss-orange-tint);
+  color: var(--ss-orange-dark);
+  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-btn:hover{ background: var(--ss-orange); color: var(--ss-white); }
+
+.dropdown-menu{
+  border: 1px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-md);
+  box-shadow: var(--ss-shadow-lg);
+  padding: 0.5rem;
+  background: var(--ss-cream-soft);
+}
+.dropdown-item{
+  border-radius: var(--ss-radius-sm);
+  padding: 0.55rem 0.8rem;
+  color: var(--ss-ink);
+  font-weight: 500;
+}
+.dropdown-item:hover, .dropdown-item:focus{
+  background: var(--ss-blue-tint);
+  color: var(--ss-ink);
+}
+.dropdown-item.text-danger:hover{ background: #FBE2D2; color: #B4381A !important; }
+.dropdown-divider{ border-color: var(--ss-tan-line); }
+
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+.app-sidebar{
+  background: var(--ss-cream-soft);
+  border-right: 1px solid var(--ss-tan-line);
+  padding: 1.25rem 1rem;
+}
+
+.sidebar-section-label{
+  font-family: var(--ss-font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ss-ink-soft);
+  letter-spacing: 0.04em;
+  margin: 1.1rem 0.6rem 0.5rem;
+}
+.sidebar-section-label:first-child{ margin-top: 0.2rem; }
+
+.side-link{
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.9rem;
+  margin-bottom: 0.3rem;
+  border-radius: var(--ss-radius-md);
+  color: var(--ss-ink);
+  font-weight: 600;
+  font-size: 0.93rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.side-link i{
+  width: 22px;
+  text-align: center;
+  color: var(--ss-ink-soft);
+  transition: color 0.15s ease;
+}
+.side-link:hover{
+  background: var(--ss-blue-tint);
+  color: var(--ss-ink);
+  transform: translateX(2px);
+}
+.side-link:hover i{ color: var(--ss-blue-deep); }
+
+.side-link.active{
+  background: var(--ss-orange);
+  color: var(--ss-white);
+  box-shadow: var(--ss-shadow-sm);
+}
+.side-link.active i{ color: var(--ss-white); }
+
+.sidebar-foot{
+  color: var(--ss-ink-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.6rem;
+}
+
+.sidebar-overlay{
+  background: rgba(36, 28, 21, 0.45);
+}
+
+/* ==========================================================================
+   Main content shell
+   ========================================================================== */
+.app-main{ background: var(--ss-cream); }
+
+.content-container{ padding: 1.75rem clamp(1rem, 3vw, 2.25rem); }
+
+.back-btn{
+  background: var(--ss-cream-soft);
+  border: 2px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-pill);
+  color: var(--ss-ink);
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+}
+.back-btn:hover{ border-color: var(--ss-orange); color: var(--ss-orange-dark); }
+
+.section-header{ margin-bottom: 1.5rem; }
+.section-header h2, .section-header h3{ margin-bottom: 0.2rem; }
+.section-header p{ color: var(--ss-ink-soft); margin: 0; }
+
+.section-head-kicker{
+  color: var(--ss-blue-deep);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.15rem;
+}
+
+/* ==========================================================================
+   Home banner
+   ========================================================================== */
+.banner-section{
+  background: linear-gradient(135deg, var(--ss-orange-tint) 0%, var(--ss-cream-soft) 60%);
+  border: 1px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-lg);
+  padding: clamp(1.5rem, 3vw, 2.75rem);
+}
+.banner-section h4{
+  color: var(--ss-orange-dark);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.banner-section h1{
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.2;
+}
+.banner-illus{
+  max-width: 100%;
+  border-radius: var(--ss-radius-lg);
+  box-shadow: var(--ss-shadow-lg);
+}
+
+/* ==========================================================================
+   Generic surfaces: bootstrap .card + the app's own card-like blocks
+   ========================================================================== */
+.card,
+.summary-card,
+.category-card,
+.profile-card,
+.requests-panel,
+.user-overview,
+.skill-summary,
+.recent-chats,
+.recommended-partners,
+.user-card, .search-card, .people-card{
+  background: var(--ss-cream-soft);
+  border: 1px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-lg);
+  box-shadow: var(--ss-shadow-sm);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.card{ padding: 0; }
+.card-body{ padding: 1.4rem; }
+.card-title{ font-family: var(--ss-font-display); }
+
+.summary-card{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.3rem;
+  cursor: pointer;
+  height: 100%;
+}
+.summary-card:hover{
+  transform: translateY(-3px);
+  box-shadow: var(--ss-shadow-md);
+  border-color: var(--ss-blue-deep);
+}
+.summary-icon{
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  background: var(--ss-orange);
+  color: var(--ss-white);
+}
+.summary-card:nth-of-type(2) .summary-icon,
+.col-md-4:nth-child(2) .summary-icon{ background: var(--ss-blue-deep); }
+.col-md-4:nth-child(3) .summary-icon{ background: var(--ss-gold); color: var(--ss-ink); }
+.summary-content h5{ margin: 0; font-size: 1rem; }
+.summary-content small{ font-size: 0.8rem; }
+
+.category-card{
+  padding: 1.3rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  height: 100%;
+}
+.category-card:hover{
+  transform: translateY(-3px);
+  box-shadow: var(--ss-shadow-md);
+  border-color: var(--ss-orange);
+}
+.category-icon{
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 0.7rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  background: var(--ss-blue-tint);
+  color: var(--ss-blue-deep);
+  border: 2px solid var(--ss-blue);
+}
+.category-card:nth-child(odd) .category-icon{
+  background: var(--ss-orange-tint);
+  color: var(--ss-orange-dark);
+  border-color: var(--ss-orange);
+}
+.category-card h6{ margin: 0; font-size: 0.9rem; }
+
+/* recommended partner cards injected by JS — best-effort styling for the
+   generic wrapper classes referenced elsewhere in the app (filterCards) */
+#recommendedPartnersList .card,
+#dashboard-recommendedPartnersList .card,
+.search-results-grid .card{
+  height: 100%;
+  padding: 1.1rem;
+}
+#recommendedLoadingMsg, #dashboard-recommendedLoadingMsg{
+  color: var(--ss-ink-soft);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Dashboard
+   ========================================================================== */
+.user-overview{
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+.user-overview .avatar{
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--ss-orange-tint);
+  margin-bottom: 0.9rem;
+}
+.user-overview h2{ margin-bottom: 0.15rem; }
+.user-overview p{ color: var(--ss-ink-soft); }
+.user-overview .skills{
+  margin-top: 1rem;
+  text-align: left;
+  background: var(--ss-cream);
+  border-radius: var(--ss-radius-md);
+  padding: 1rem 1.2rem;
+}
+
+.skill-summary, .recent-chats, .recommended-partners{ padding: 1.5rem; margin-top: 1.25rem; }
+.summary-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.summary-item{
+  background: var(--ss-cream);
+  border-radius: var(--ss-radius-md);
+  padding: 1rem;
+  text-align: center;
+}
+.summary-item h4{ color: var(--ss-orange-dark); font-size: 1.6rem; margin-bottom: 0.15rem; }
+.summary-item p{ color: var(--ss-ink-soft); margin: 0; font-size: 0.82rem; }
+
+#recentChatsList{ list-style: none; padding: 0; margin: 0.75rem 0 0; }
+#recentChatsList li{
+  padding: 0.7rem 0.4rem;
+  border-bottom: 1px solid var(--ss-tan-line);
+}
+#recentChatsList li:last-child{ border-bottom: none; }
+
+/* ==========================================================================
+   Requests
+   ========================================================================== */
+.requests-panel{ padding: 1.4rem; height: 100%; }
+.requests-panel h4{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: var(--ss-ink);
+}
+.requests-panel h4 i{ color: var(--ss-orange); }
+.requests-list{ display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* ==========================================================================
+   Messages
+   ========================================================================== */
+#chatSidebar{
+  background: var(--ss-cream-soft);
+  border: 1px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-lg) 0 0 var(--ss-radius-lg);
+  padding: 1.2rem;
+}
+#chatSidebar h4{ margin-bottom: 0.9rem; }
+.chat-search{ margin-bottom: 0.9rem; }
+.chat-search .topbar-search{ background: var(--ss-cream); }
+
+#chatList.list-group{ border-radius: var(--ss-radius-md); overflow: hidden; }
+#chatList .list-group-item{
+  border: none;
+  border-bottom: 1px solid var(--ss-tan-line);
+  background: transparent;
+  padding: 0.8rem 0.6rem;
+  color: var(--ss-ink);
+}
+#chatList .list-group-item:hover,
+#chatList .list-group-item.active{
+  background: var(--ss-blue-tint);
+}
+
+#chatWindow{
+  background: var(--ss-cream);
+  border: 1px solid var(--ss-tan-line);
+  border-left: none;
+  border-radius: 0 var(--ss-radius-lg) var(--ss-radius-lg) 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+}
+#chatHeader{
+  padding: 1rem 1.3rem;
+  border-bottom: 1px solid var(--ss-tan-line);
+  background: var(--ss-cream-soft);
+  border-radius: 0 var(--ss-radius-lg) 0 0;
+}
+#chatMessages{ flex: 1; padding: 1.2rem; overflow-y: auto; }
+.chat-empty{ text-align: center; margin-top: 2.5rem; color: var(--ss-ink-soft); }
+.chat-empty-ico{
+  width: 64px; height: 64px; margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--ss-orange-tint);
+  color: var(--ss-orange-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
+
+.file-chip{
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 1.2rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--ss-blue-tint);
+  border-radius: var(--ss-radius-pill);
+  color: var(--ss-ink);
+  font-size: 0.85rem;
+  width: fit-content;
+}
+.file-remove{
+  background: none; border: none; color: var(--ss-ink-soft); font-size: 1rem; line-height: 1;
+}
+
+.chat-composer{
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.2rem;
+  border-top: 1px solid var(--ss-tan-line);
+}
+.attach-btn{
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--ss-tan-line);
+  background: var(--ss-cream-soft);
+  color: var(--ss-ink-soft);
+}
+.attach-btn:hover{ border-color: var(--ss-orange); color: var(--ss-orange-dark); }
+.msg-field{
+  flex: 1;
+  background: var(--ss-cream-soft);
+  border: 2px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-pill);
+  padding: 0.5rem 1.1rem;
+}
+.msg-field textarea{
+  border: none; background: transparent; width: 100%; resize: none;
+  font-family: var(--ss-font-body); color: var(--ss-ink);
+}
+.msg-field textarea:focus{ outline: none; }
+.send-btn{
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--ss-orange);
+  color: var(--ss-white);
+  border: none;
+  flex: 0 0 auto;
+}
+.send-btn:hover{ background: var(--ss-orange-dark); }
+
+/* Video call modal */
+#videoCallModal .modal-content{
+  background: var(--ss-ink);
+  border-radius: var(--ss-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--ss-shadow-lg);
+}
+.call-bar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.3rem;
+  background: rgba(0,0,0,0.35);
+  color: var(--ss-white);
+}
+.live-dot{
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+  background: #E2632A; margin-right: 6px;
+}
+.call-controls{ display: flex; gap: 0.6rem; }
+.call-ctrl{
+  width: 42px; height: 42px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.12); color: var(--ss-white);
+}
+.call-ctrl:hover{ background: rgba(255,255,255,0.24); }
+.ctrl-end{ background: #D64B3A; }
+.ctrl-end:hover{ background: #B93B2C; }
+.video-container video{ background: #000; }
+
+/* ==========================================================================
+   Profile
+   ========================================================================== */
+.profile-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.profile-card{ padding: 2rem 1.5rem; }
+.profile-picture-container{ position: relative; display: inline-block; margin-bottom: 1rem; }
+.profile-picture-container img{
+  width: 120px; height: 120px; border-radius: 50%;
+  object-fit: cover; border: 4px solid var(--ss-orange-tint);
+}
+.avatar-edit-btn{
+  position: absolute; bottom: 4px; right: 4px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--ss-orange); color: var(--ss-white);
+  border: 3px solid var(--ss-cream-soft);
+}
+.avatar-edit-btn:hover{ background: var(--ss-orange-dark); }
+.username{ font-size: 0.9rem; }
+
+.nav-tabs{ border-bottom: 2px solid var(--ss-tan-line); gap: 0.4rem; }
+.nav-tabs .nav-link{
+  border: none;
+  border-radius: var(--ss-radius-pill);
+  color: var(--ss-ink-soft);
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  margin-bottom: -2px;
+}
+.nav-tabs .nav-link:hover{ background: var(--ss-cream-deep); color: var(--ss-ink); }
+.nav-tabs .nav-link.active{
+  background: var(--ss-orange);
+  color: var(--ss-white);
+}
+
+.form-label{ font-weight: 600; color: var(--ss-ink); font-size: 0.85rem; }
+.form-control, .form-select{
+  background: var(--ss-cream);
+  border: 2px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-sm);
+  color: var(--ss-ink);
+  padding: 0.55rem 0.85rem;
+}
+.form-control:focus, .form-select:focus{
+  border-color: var(--ss-blue-deep);
+  box-shadow: 0 0 0 4px var(--ss-blue-tint);
+  background: var(--ss-white);
+}
+.form-control[readonly], .form-control:disabled, .form-select:disabled{
+  background: var(--ss-cream-deep);
+  color: var(--ss-ink-soft);
+}
+
+.skill-row{ display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; }
+.tagify-container{ flex: 1; min-width: 200px; }
+.skill-level-select{ max-width: 170px; }
+
+.checkbox-group{ display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.checkbox-group label{
+  background: var(--ss-cream);
+  border: 1px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-pill);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.skills-list{ list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; }
+.skills-list li{
+  background: var(--ss-blue-tint);
+  color: var(--ss-ink);
+  border-radius: var(--ss-radius-pill);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.skills-list li:nth-child(odd){ background: var(--ss-orange-tint); }
+
+.edit-buttons{ display: flex; }
+
+/* Tagify theme */
+.tagify{
+  border: 2px solid var(--ss-tan-line) !important;
+  border-radius: var(--ss-radius-sm) !important;
+  background: var(--ss-cream);
+  --tag-bg: var(--ss-orange-tint);
+  --tag-text-color: var(--ss-ink);
+  --tag-hover: var(--ss-orange);
+  --tag-remove-btn-color: var(--ss-ink-soft);
+  --placeholder-color: var(--ss-ink-soft);
+}
+.tagify__tag > div{ border-radius: var(--ss-radius-pill); }
+
+/* ==========================================================================
+   Accordion (Help & Feedback)
+   ========================================================================== */
+.accordion-item{
+  border: 1px solid var(--ss-tan-line);
+  border-radius: var(--ss-radius-md) !important;
+  overflow: hidden;
+  margin-bottom: 0.6rem;
+}
+.accordion-button{
+  font-weight: 600;
+  color: var(--ss-ink);
+  background: var(--ss-cream-soft);
+}
+.accordion-button:not(.collapsed){
+  background: var(--ss-orange-tint);
+  color: var(--ss-orange-dark);
+  box-shadow: none;
+}
+.accordion-button:focus{ box-shadow: 0 0 0 3px var(--ss-blue-tint); }
+.accordion-body{ background: var(--ss-cream-soft); color: var(--ss-ink-soft); }
+
+/* ==========================================================================
+   Responsive tweaks
+   ========================================================================== */
+@media (max-width: 768px){
+  .content-container{ padding: 1.1rem; }
+  .profile-header{ flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+  #chatSidebar{ border-radius: var(--ss-radius-lg); border-bottom: none; }
+  #chatWindow{ border-radius: var(--ss-radius-lg); border-left: 1px solid var(--ss-tan-line); border-top: none; margin-top: 0.75rem; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ transition: none !important; animation: none !important; }
+}
